@@ -123,9 +123,9 @@ Due to their versatility, anchors are useful in many different types of regular 
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Quantifiers are a category of special characters that allow for matching of a certain number of occurrences of a character, group, or class in a string. As noted above, within our example we take advantage of the plus `+` quantifier to match one or more occurrences of the preceding set of characters, in our case [\da-z\.-], because it allows us to flexibly target an unspecified number of characters and account for the wide variety in sub domain names on the web. Further, we also take advantage of the question mark `?` to include optional features, specifically `(https?:\/\/)?` and `([\/\w \.-]*)*\/` as it is used to search for the presence or absence (i.e., zero or one occurrences) of the peceding character, group, or class. I our case, we take advantage of it to detect optional components of urls, these being the http protocol and the optional path/query parameters.
+Quantifiers are a category of special characters that allow for matching of a certain number of occurrences of a character, group, or class in a string. As noted above, within our example we take advantage of the plus `+` quantifier to match one or more occurrences of the preceding set of characters, in our case [\da-z\.-], because it allows us to flexibly target an unspecified number of characters and account for the wide variety in sub domain names on the web. Further, we also take advantage of the question mark `?` to include optional features, specifically `(https?:\/\/)?` and `([\/\w \.-]*)*\/` as it is used to search for the presence or absence (i.e., zero or one occurrences) of the peceding character, group, or class. I our case, we take advantage of it to detect optional components of urls, these being the http protocol and the optional path/query parameters. This regular expression also takes advantage of curly braces containing a range of values to target a specific numer of occrrences of a preceding character, group, or class. Specifically, `{2,6}` is used to target a string of 2 to 6 characters from `[a-z\.]`, allowing this expression to target any top-level domain name (e.g., `com`, `net`, `edu`, `gov`, `io`).
 
-To summarize, quantifiers are useful because they allow matching of patterns that may repeat a certain of times in a string.
+Overall, quantifiers are useful because they allow matching of patterns that may repeat a certain of times in a string.
 
 ### OR Operator
 
@@ -164,6 +164,15 @@ Flags are added by placing them after the final `/` as so: `/^(https?:\/\/)?([\d
 ### Grouping and Capturing
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
+
+Grouping and capturing in regular expressions is used to match and extract parts of a pattern. By containing a piece of a regular expression within parentheses (e.g., `/(inbrackets)/`), parts of a regular expression may be grouped together for the purpose of applying quantifiers or other modifications to the entire set. For example, the current regular expression includes three instances of grouping: 
+
+1. `(https?:\/\/)`: This first instance of grouping is to allow the `?` quantifier to be applied to the entire group of characters collectively.
+2. `([\da-z\.-]+)`: This instance of grouping is to allow the `+` quantifier to be applied to the entire group.
+3. `([\/\w \.-]*)`: This instance of grouping is to allow the `*` quantifier to be applied to the entire group.
+
+
+Please note that only parentheses may be used for grouping characters, as curly brackets are used for quantifying and square brackets are reserved for declaring character classes.
 
 ### Bracket Expressions
 
