@@ -12,7 +12,7 @@ Today we will be exploring the following regular expression for identifying URLs
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-This regex matches URLs that start with an optional "http://" or "https://" protocol, followed by a domain name consisting of one or more letters, digits, dots, and hyphens, and ending with a top-level domain of two to six letters or dots (e.g., .com, .org, .co.uk). The regex also matches any optional path or query parameters after the domain name.
+This regex uses a combination of groupinng, character classes, quantifiers, and anchors to match URLs. Specifically it matches for strings that start with an optional "http://" or "https://" protocol, followed by a domain name consisting of one or more letters, digits, dots, and hyphens, and ending with a top-level domain of two to six letters or dots (e.g., .com, .org, .co, .uk, .gov, .edu). The regex also matches any optional path or query parameters after the domain name.
 
 | HTTP Protocol    | Domain          | Top-level Domain   | Optional path/Query Parameters |
 | ---------------- | --------------- | ------------------ | ------------------------------ |
@@ -46,13 +46,13 @@ With this knowledge in mind, the regular expression being scrutinized in this tu
     (4) grouping and capturing
     (5) bracket expressions
     (6) greedy and lazy matching
-    (7) look-ahead and look-behind
 
 Alternatively, the following regex components are not used in this particular regular expression:
 
     (1) OR operator
     (2) flags
     (3) back-references
+    (4) look-ahead and look-behind
 
 For the purpose of this tutorial and to provide a more complete overview of regular expressions in general, brief sections will still be dedicated to these components.
 
@@ -84,7 +84,7 @@ For the purpose of this tutorial and to provide a more complete overview of regu
 6. ([a-z\.]{2,6}): This is another capturing group.
 
 - a-z: Matches any lowercase letter (a-z).
-- \.: Matches a literal period ".". The backslash is an escape character.
+- \.: Matches a literal period `"."`. The backslash is an escape character.
 - {2,6}: This is a quantifier that specifies the preceding character set must match at least 2 and at most 6 times.
 
 7. ([\/\w \.-]\*): This is another capturing group.
@@ -165,12 +165,11 @@ Flags are added by placing them after the final `/` as so: `/^(https?:\/\/)?([\d
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Grouping and capturing in regular expressions is used to match and extract parts of a pattern. By containing a piece of a regular expression within parentheses (e.g., `/(inbrackets)/`), parts of a regular expression may be grouped together for the purpose of applying quantifiers or other modifications to the entire set. For example, the current regular expression includes three instances of grouping: 
+Grouping and capturing in regular expressions is used to match and extract parts of a pattern. By containing a piece of a regular expression within parentheses (e.g., `/(inbrackets)/`), parts of a regular expression may be grouped together for the purpose of applying quantifiers or other modifications to the entire set. For example, the current regular expression includes three instances of grouping:
 
 1. `(https?:\/\/)`: This first instance of grouping is to allow the `?` quantifier to be applied to the entire group of characters collectively.
 2. `([\da-z\.-]+)`: This instance of grouping is to allow the `+` quantifier to be applied to the entire group.
 3. `([\/\w \.-]*)`: This instance of grouping is to allow the `*` quantifier to be applied to the entire group.
-
 
 Please note that only parentheses may be used for grouping characters, as curly brackets are used for quantifying and square brackets are reserved for declaring character classes.
 
@@ -188,27 +187,52 @@ Overall, the choice between character classes and bracket expressions depends on
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
+Greedy and lazy matching are two distince approaches to matching patterns in regular expressions. The former
+
+Greedy matching is used by default in regular expressions, meaning that it matches as much text as possible while still satisfying the pattern
+however,
+
+lazy matching is useful in certain situations where you may need to match text that contains nested patterns and where greedy matching would match too much text and result in unexpected matches (e.g., )
+
 ### Boundaries
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Boundaries are a type of special character that allow for matching of patterns at a specific location within a string.
+Boundaries are a type of special character that allow for matching of patterns at a specific location within a string and are useful for ensuring that matches only occur where intended. It is important to note that boundaries do not match specific characters themselves, but rather only allow for characters at certain positions to be matched. Regex features multiple types of boundaries, however, (1) word boundaries, (2) start- and end-of-line boundaries, and (3) start- and end-of-string boundaries are the most common.
+
+- Word boundaries: Word boundaries are represented by the `b` metacharacter, and match the transition between word characters (i.e., letters, digits, and underscores) and character that does not fall under one of the previously mentioned categories. Word boundaries are useful when specifically matching a word that may sometimes be found inside of other words (e.g., you could use `\bcat\b` when only want to select that word cat but not its use in the word *cat*egory). Alternatively, word boundaries may also be made negative using the `\B` metacharacter. This can be useful for excluding specific unintended matches and searches specifically for the transition between two word characters or non-word characters.
+- Start- and end-of-line: The anchors `^` and `$` discussed above are used to establish boundaries, specifically to match the beginning and end of a line, respectively. For instance, `^what` would match the word "what" only if it appears at the start of a line (e.g., Selecting what in "what is going on here?" but not in "I do not know what is the matter").
+- Start- and end-of-string: Denoted by the `\A` and `\Z` matacharacters to represent the start and end of an entire string, respectively. These metacharacters can be useful when working with input that contains multiple lines or paragraphs.
+
+As noted above, our regex for matching URLs takes advantage of the carat `^` and `$` to indicate start- and end-of-line boundaries to identify our URLs as their own unique entity and means a URL that is contained mid-sentence would not be detected. This is likely done since the regex is primarily intended to detect urls from a search bar, rather than from the body content of a webpage.
 
 ### Back-references
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-As noted above, this regular expression does not use any back-references. Nonetheless, it may still be helpful to provide just a brief overview of what back-references are and how they work to understand _why_ they are not included here.
+As noted above, this regular expression does not use any back-references. Nonetheless, it may still be helpful to provide just a brief overview of what back-references are and how they work to understand _why_ they are not necessary in this particular expression.
 
-Back-references are a method of referring back to a previously matched group within the same regular expression pattern to allow for matching repeated patterns. They are denoted by backslash followed by the number of the capturing group (e.g., `\2` refers to the second capturing group in the pattern.)
+The use of back-references is a method of referring back to a previously matched group within the same regular expression pattern to allow for matching repeated patterns. Back-references take advantage of capturing groups (see [Grouping and Capturing](#grouping-and-capturing)) to easily refer to repeated patterns or to ensure that two parts of a pattern match the same text. Back-references are denoted by backslash followed by the number of the capturing group (e.g., `\2` refers to the second capturing group in the pattern). For this reason, back-references are commonly used for text validation, data extraction tasks, and in search and replace. Additionally, another common use of back-references is to check for the presence of repeated words when editing text, specifically using the regex `\b(\w+)\S+\1\b`. Since the regular expression above does not need to target repeated text, however, and urls do not typically include matching segments, back-references are not required when targeting our URLs.
 
-For this reason, back-references are commonly used for text validation, data extraction tasks, and in search and replace.
+Tip: It is important to note that parentheses are unable to be used as metacharacters in character classes, such that were you to attempt to match `(a)` inside of a character class as so: `[(a)bc]` it would match a, b, c, and also ( and ), since it treats the parentheses as literal characters. Similarly, back-references also cannot be used inside character classes (e.g,. `(regex)[\1p]` would escape the 1 rather than functioning as a back-reference).
+
+For further reading on back-references please see [here](https://www.regular-expressions.info/backref.html).
 
 ### Look-ahead and Look-behind
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-This regular expression uses a positive look-ahead assertion `(?=...)` to match the top-level domain name, as well as any optional path or query parameters.
+Look-ahead and look-behind, collectively referred to as 'lookaround' allow matching of text based on what comes before and after a specific pattern, specifically without including the text that comes before and after the text in the final match, respectively. Critically, the reason to use lookarounds rather than merely specifying that something should be present in your string is when you would like to match a pattern _only_ if it is followed or preceded by another specific pattern, and you do not want to include the other pattern in the match. Concerning our URL detecting regex for a moment, as noted above, this regular expression does not rely upon lookarounds. Regardless, for the sake of being thorough let us briefly discuss the two categoreis of lookaround in slightly more detail.
+
+#### Look-ahead
+
+When discussing lookahead, there are two varieties to consider: standard look-ahead denoted by the syntax `?=` and negative look-ahead, denoted by the syntax `?!`. Standard look-ahead `?=` specifies matches only when a string is followed by a specific pattern (e.g., `dog(?=house)` only matches _dog_ if it is followed by _house_, while not including house in the match). Conversely, negative look-ahead `?!` does the opposite, matching a group of characters _not_ followed by a specific pattern, while not including it in the match (e.g., `dog(?!house)` only matches dog if it is not immediately followed by house). Look-aheads are similarly useful when you would like to match a pattern only if it is followed by a specific number of characters but do not want to include the characters in the match (e.g., If you wanted to match all occurrences of )
+
+#### Look-behind
+
+As with look-ahead, look-behind also features two varieties: positive look-behind, denoted by the syntax `?<=` and negative look-ahead, denoted by the `?<!` syntax. Look-behind matches a group of characters preceded by a specific pattern without including the pattern in the match (e.g., `(?<=dog)food` matches the string _food_ only if it is preceded by _dog_, while not including dog in the match). Alternatively, nagative look-behind matches a group of characters that are _not_ preceded by a specific pattern (e.g., `(?<!air)plane` matches the string plane, but only if it is not immediately preceded by air).
+
+For more information on lookarounds see [here](https://www.regular-expressions.info/lookaround.html) and [here](https://www.rexegg.com/regex-lookarounds.html)
 
 ## Author
 
