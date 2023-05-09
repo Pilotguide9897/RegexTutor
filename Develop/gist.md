@@ -131,27 +131,30 @@ Overall, quantifiers are useful because they allow matching of patterns that may
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-The or operator `|` is used within regular expressions to match from amongst two or more possible patterns. The or operator is not used in this particular regular expression, and is generally less common than many other regex components. An important note about the or operator is that it has a lower precedence than other regular expression operators, such as anchors and quantifiers, meaning that
+The or operator `|` is used within regular expressions to match from amongst two or more possible patterns. The or operator is not used in this particular regular expression, and is generally less common than many other regex components. An important note about the or operator is that it has a lower precedence than other regular expression operators, such as anchors and quantifiers, meaning that it is evaluated after these other operators. 
+
+When using the or operator in regular expressions, each possible pattern is enclosed in parentheses and separated by the | symbol. For example, the regular expression (dog|cat) would match either "dog" or "cat". The or operator can be useful when searching for multiple variations of a word or phrase.
+
+It's important to note that the or operator is case-sensitive, unless it is modified by the i flag, which makes the regular expression case-insensitive. Additionally, the or operator only matches the first pattern that it finds, even if there are multiple matches in the text being searched.
+
+Another thing to keep in mind is that the or operator can be used in combination with other regular expression components, such as character classes and quantifiers. For instance, the regular expression ([A-Z]|[0-9]){3} would match any three-character string that contains either an uppercase letter or a number.
 
 ### Character Classes
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Character classes, also referred to as _character sets_ are a robus feature of regular expressions that specifies a set of characters which may be matched by any single character in the string being searched. To put it another way, character classes tell the regex engine to match all occurrences of only certain characters. For example, Character classes are defined by enclosing characters within a set of square brackets `[]` and can be used to specify specific characters (e.g., `[abc]` would match any instance of a, b, or c), or to define a range of characters that encloses any
+Character classes, also referred to as *character sets* are a robus feature of regular expressions that specifies a set of characters which may be matched by any single character in the string being searched. To put it another way, character classes tell the regex engine to match all occurrences of only certain characters. Specifically, character classes are defined by enclosing characters within a set of square brackets `[]` and can be used to specify specific characters (e.g., `[abc]` would match any instance of a, b, or c), or to define a range of characters that encloses any characters in between (e.g., `[a-z] all instances of lowercase letters in a given string). Character classes are useful because they allow users to specify multiple characters in a condensed syntax, such that they do not need to write out [a,b,c,d,e,f,]
 
-Another feature of regex related to character classes are negated character classes, which are created by placing a carat `^` after the open square bracket in a regular character class. Negated character classes result in the expression matching any character _not_ included in the character class
+Another feature of regex related to character classes are negated character classes, which are created by placing a carat `^` after the open square bracket in a regular character class. Negated character classes result in the expression matching any character *not* included in the character class. Notably are also a select few predefined character classes that are default to regular expressions, including:
 
-there are also a select few predefined character classes that are default to regular expressions, including:
+- `\d`: Matches any digit character. Equivalent to [0-9].
+- `\D`: Matches any non-digit character. Equivalent to [^0-9].
+- `\w`: Matches any word character, which includes alphanumeric characters and underscores. Equivalent to [a-zA-Z0-9_].
+- `\W`: Matches any non-word character. Equivalent to [^a-zA-Z0-9_].
+- `\s`: Matches any whitespace character, including spaces, tabs, and line breaks. Equivalent to [ \t\n\r\f].
+- `\S`: Matches any non-whitespace character. Equivalent to [^ \t\n\r\f].
 
-`\d`
-`\w`
-`\s`
-`\s` : Matches any whitespace character (including spaces, tabs, and line breaks)
-`\D` : Matches any non-digit character
-`\W` : Matches any non-word character
-`\S` : Matches any non-whitespace character
-
-Character classes are a useful tool for writing more concise regular expressions
+Overall, character classes are a useful tool for writing more concise regular expressions
 
 ### Flags
 
@@ -177,7 +180,7 @@ Please note that only parentheses may be used for grouping characters, as curly 
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Like character classes, bracket expressions are used to define a set of characters that match a pattern, but features slightly different syntax, notation, and use cases.
+Like character classes, bracket expressions are used to define a set of characters that match a pattern. Unlike character classes, however, bracket expressions features slightly different syntax, notation, and use cases. Whereas character classes are defined using square brackets `[]`, 
 
 Generally speaning, when attempting to match a set of characters that follow a specific pattern or order, bracket expressions may be a better choice, as they provide a greater degree of flexibility
 
