@@ -1,4 +1,4 @@
-# The Anatomy of a URL: Using Regular Expressions to Break It Down
+# The Anatomy of a URL: Using Regular Expressions to Target URLs
 
 URLs, or Uniform Resource Locators, are the addresses we use to access web pages, images, videos, and other online resources. We see them every day in our web browsers and apps, yet many people don't fully grasp how they work or what they consist of. In fact, URLs can be quite complex and vary in format and length depending on the website or service they belong to. They often include various parts, such as the protocol (http, https, ftp), the domain name (e.g., google.com), the path (the location of the resource on the server), and query parameters (additional information passed to the server).
 
@@ -18,7 +18,7 @@ This regex uses a combination of groupinng, character classes, quantifiers, and 
 | ---------------- | --------------- | ------------------ | ------------------------------ |
 | `(https?:\/\/)?` | `([\da-z\.-]+)` | `\.([a-z\.]{2,6})` | `([\/\w \.-]*)*\/?$`           |
 
-We will break down the regex into its individual components and explain what each one does, including anchors, quantifiers, character classes, grouping and capturing, and look-ahead and look-behind assertions. By the end of this tutorial, you will have a solid understanding of how this regex works and how to use it in your own projects.
+We will break down the regex into its individual components and examine what each one does, including anchors, quantifiers, character classes, grouping and capturing, and look-ahead and look-behind assertions. By the end of this tutorial, you will have a solid understanding of how this regex works and how to use it in your own projects.
 
 ## Table of Contents
 
@@ -54,9 +54,9 @@ Alternatively, the following regex components are not used in this particular re
     (3) back-references
     (4) look-ahead and look-behind
 
-For the purpose of this tutorial and to provide a more complete overview of regular expressions in general, brief sections will still be dedicated to these components.
+For the purpose of this tutorial and to provide a more complete overview of regular expressions in general, brief sections will still be dedicated to these components despite their disuse in this particular example.
 
-- Please note that although not necessarily a part of the regular expression syntax itself, the `/` characters used in the example above at the beginning and end of the regular expression are used to indicate the beginning and end of the regular expression pattern. Specifically, when a regular expression is written in JavaScript, the `/` indicate to the interpreter that the enclosed text is a regular expression and separate the regular expression from any flags that may modify its behaviour (e.g., `/my regular expression/i`, where `i` is the flag and renders the regular expression case insensitive).
+- Further, please note that although not necessarily a part of the regular expression syntax itself, the `/` characters used in the example above at the beginning and end of the regular expression are used to indicate the beginning and end of the regular expression pattern. Specifically, when a regular expression is written in JavaScript, the `/` indicate to the interpreter that the enclosed text is a regular expression and separate the regular expression from any flags that may modify its behaviour (e.g., `/my regular expression/i`, where `i` is the flag and renders the regular expression case insensitive).
 
 ## Part-by-Part-Breakdown
 
@@ -108,36 +108,41 @@ For the purpose of this tutorial and to provide a more complete overview of regu
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Anchors are a type of special character used in regular expressions that allow users to match text from specific _positions_ within a string rather than specific characters. The two most commonly used anchors are the caret `^` and dollar sign `$`, and these are in fact used in this very regular expression.
+Anchors are a type of special character used in regular expressions that allow users to match text from specific *positions* within a string rather than specific characters. The two most commonly used anchors are the caret `^` and dollar sign `$`. Notably, these anchors are in fact used in this very regular expression.
 
-1.  The carat `^` anchor is used to match the beginning of a line or string. In this example it is used to indicate the beginning of our url.
-2.  The dollar sign `$` anchor is used to match the end of a line or string. In this example it is used to indicate the
+1.  The carat `^` anchor is used to match the beginning of a line (or an entire string in single-line mode). In this example it is used to indicate the beginning of our url.
+2.  The dollar sign `$` anchor is used to match the end of a line or string. In this example it is used to indicate the end of our URL. Note that, though not used for this purpose in the regular expression above, `$` is also sometimes used for back-references in the replacement part of a regular expression operation. More information on its use in back-references is provided below in the section on back-references.
 
-Although they are not used in this particular case, additional examples of anchors include `\b` and `\A`, which search for word boundaries and for the beginning of strings, respectively. To put it another way, `b` lets one perform whole-word searches using regular expressions in the form of `\bmyWord\b`. Alternatively, `\B\` is the negated version of `\b` and allow for selection of any position that is not a word boundary.
+Although they are not used in this particular case, additional examples of anchors include `\b` and `\A`, which search for word boundaries and for the beginning of strings, respectively. To put it another way, `b` lets one perform whole-word searches using regular expressions in the form of `\bmyWord\b` (e.g., `\bapple\b` could be used to match the word *apple* as a stand alone word in text, but would not match if apple is part of anoter word such as *pineapple*). Using this anchor at the beginning or end of a word also allows users to specify that a word must have a boundary before or following certain pattern (e.g., to find words that end with "ing", you can use the pattern \w+ing\b. This will match words like "running", "jumping", but not "bring").  Alternatively, `\B\` is the negated version of `\b` and allow for selection of any position that is not a word boundary. For instance, to match the letter "a" only if it is not at a word boundary, you can use `\Ba\B`. This will match the "a" in "banana", but not in "apple".
 
-whereas `\A` is similar to `^`
+Whereas `\b` searches for word boundaries, `\A` detects the beginning of strings of text. In this regard, `\A` functions quite similarly to the caret `^`, discussed above, with a slight nuance in how they each function. Specifically, `\A` matches the start of the entire string, no matter what and ensures that the pattern that follows must start at the very beginning of the entire string. `^` on the other hand, usually matches the start of a line, but can also match the start of the entire string. By default, `^` matches the start of a line in multiline mode, but in regular mode, it matches the start of the entire string.
+However, some regex flavors allow modifying `^` to always match the start of the entire string, regardless of multiline mode.
 
-Due to their versatility, anchors are useful in many different types of regular expressions ranging from those involved in simple string matching all the way to complex text processing tasks.
+Due to their versatility, anchors are useful in many different types of regular expressions ranging from those for simple string matching all the way to complex text processing tasks. For more information on anchors, see [here](https://www.rexegg.com/regex-anchors.html).
 
 ### Quantifiers
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Quantifiers are a category of special characters that allow for matching of a certain number of occurrences of a character, group, or class in a string. As noted above, within our example we take advantage of the plus `+` quantifier to match one or more occurrences of the preceding set of characters, in our case [\da-z\.-], because it allows us to flexibly target an unspecified number of characters and account for the wide variety in sub domain names on the web. Further, we also take advantage of the question mark `?` to include optional features, specifically `(https?:\/\/)?` and `([\/\w \.-]*)*\/` as it is used to search for the presence or absence (i.e., zero or one occurrences) of the peceding character, group, or class. I our case, we take advantage of it to detect optional components of urls, these being the http protocol and the optional path/query parameters. This regular expression also takes advantage of curly braces containing a range of values to target a specific numer of occrrences of a preceding character, group, or class. Specifically, `{2,6}` is used to target a string of 2 to 6 characters from `[a-z\.]`, allowing this expression to target any top-level domain name (e.g., `com`, `net`, `edu`, `gov`, `io`).
+Quantifiers are a category of special characters that allow for matching of a certain number of occurrences of a character, group, or class in a string. Quantifiers are applied by appending to an individual character or a character class, and the simplest quantifier is simply a number contained within curly braces (e.g., `a{n}`, where n could be any number -> a{5} is equivalent to [aaaaa]). This is known as specifying an exact count and features a few variations. As seen previously, we can specify a specific number. However, we may also specify a range using our curly brackets (e.g., \d{3,5} -> here we are using `\d` to target any digit from 0-9, in any combination of 3 to 5 characters, thus it would match 982, 4678, or even 28045 but would *not* match 99 or 343201), where we specify the lower value separated from the higher value by a comma. In effect, provides greater control when targeting patters of variable length, as rather than knowing a head of time specifically how long the targets are that we wish to select, this provides improved flexibility to target diverse values. In addition, using a similar syntax users may even omit the upper limit, specifying only a minimum number of digits/characters followed by a comma (e.g., \d{3,} matches any number with three or more characters in effect specifies that the target must contain "three or more" digits). 
 
-Overall, quantifiers are useful because they allow matching of patterns that may repeat a certain of times in a string.
+In addition to these basic quantifiers, `+`, `?`, and `*` are further used to specify the number of occurrences of the preceding element in the pattern. The "+" quantifier specifies that the preceding element must occur one or more times. It matches if the preceding element appears at least once but is not strict in the number of occurrences it requires, meaning that the pattern can occur multiple times. For example, the pattern "a+" matches "a", "aa", "aaa", and so on, but it does not match an empty string or a string without any "a" characters. Similarly, the pattern "ab+c" matches "abc", "abbc", "abbbc", and so on, but not "ac" or "ab". The "?" quantifier specifies that the preceding element is optional, meaning it can occur zero or one time. It matches regardless of if the preceding element is present is absent. For example, the pattern `colou?r` matches both "color" and "colour". The "u" in "colour" is optional. Likewise, the pattern `dogs?` matches both "dog" and "dogs". The "s" at the end is optional. Finally, the `*` quantifier indicates that the preceding character or group can occur zero or more times. For example, a* can match "", "a", "aa", "aaa", and so on. Overall, it is similar to the + quantifier, but it can also match zero occurrences.
+
+As noted above, in our example we take advantage of the plus `+` quantifier to match one or more occurrences of the preceding set of characters, in our case `[\da-z\.-]`, because it allows us to flexibly target an unspecified number of characters and account for the wide variety in sub domain names on the web. To put it another way, the `+` is what allows us to account for domain names that may be 6 characters long (e.g., google), while also being able to manage much longer domains (e.g., MyDogAteMyHomework). In our example, we also take advantage of the question mark `?` quantifier to include optional features, specifically `(https?:\/\/)` and `([\/\w \.-]*)*\/`, as it is used to search for the presence or absence (i.e., zero or one occurrences) of the peceding character, group, or class. I our case, we take advantage of it to detect optional components of urls, these being the http protocol and the optional path/query parameters. This regular expression also takes advantage of curly braces containing a range of values to target a specific numer of occrrences of a preceding character, group, or class. Specifically, `{2,6}` is used to target a string of 2 to 6 characters from a to z and which include a period (`[a-z\.]`), allowing this expression to target any top-level domain name (e.g., `com`, `net`, `edu`, `gov`, `io`).
+
+Overall, quantifiers are useful because they allow matching of patterns that may repeat a certain of times in a string and because quantifiers can be combined with other regex elements to create more complex patterns for pattern matching and text manipulation.
 
 ### OR Operator
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-The or operator `|` is used within regular expressions to match from amongst two or more possible patterns. The or operator is not used in this particular regular expression, and is generally less common than many other regex components. An important note about the or operator is that it has a lower precedence than other regular expression operators, such as anchors and quantifiers, meaning that it is evaluated after these other operators. 
+The OR operator `|` is used within regular expressions to match from among two or more possible patterns. The OR operator is not used in this particular regular expression, and its use is generally less common than many other regex components. When using the or operator in regular expressions, each possible pattern is enclosed in parentheses and separated by the | symbol. For example, the regular expression (dog|cat) would match either "dog" or "cat". The OR operator can be useful when searching for multiple variations of a word or phrase and can be used in combination with other regular expression components, such as character classes and quantifiers. For instance, the regular expression ([A-Z]|[0-9]){3} would match any three-character string that contains either an uppercase letter or a number.
 
-When using the or operator in regular expressions, each possible pattern is enclosed in parentheses and separated by the | symbol. For example, the regular expression (dog|cat) would match either "dog" or "cat". The or operator can be useful when searching for multiple variations of a word or phrase.
+It is important to note that the OR operator is case-sensitive, unless it is modified by the `i` flag (see the section on [flags]() below), which makes the regular expression case-insensitive. Additionally, the OR operator only matches the first pattern that it finds, even if there are multiple matches in the text being searched. A final note about the OR operator is that it has a higher precedence than other regular expression operators, such as anchors and quantifiers. In regular expressions, precedence determines the order in which operators and constructs are evaluated. Operators with higher precedence are evaluated before those with lower precedence. To demonstrate what this means, consider the following regular expression: ^\d+|abc$. This regular expression matches either a sequence of digits at the start of the string or the string "abc" at the end. Here's how the evaluation occurs: ^\d+ matches one or more digits (\d+) at the start of the string (^ anchor). This matches patterns like "123" or "456789". Conversely, abc$ matches the exact string "abc" at the end of the string ($ anchor). This matches the string "abc". Thus, if you have the input string "123abc", the regular expression `^\d+|abc$` will match "123" as well as "abc". However, if you have the input string "abc123", only "abc" will match, not "123".
 
-It's important to note that the or operator is case-sensitive, unless it is modified by the i flag, which makes the regular expression case-insensitive. Additionally, the or operator only matches the first pattern that it finds, even if there are multiple matches in the text being searched.
+The OR operator is not used in our regular expression for matching URLs. This is unused because rather than using a single regex pattern with multiple OR operators to match URLs, it takes advantage of multiple separate regex patterns for matching the HTTP protocol, domain, top-level domain, and path/query parameters individually. This allows for more specific validation and easier adjustment if requirements change and means that the OR operator is not needed.
 
-Another thing to keep in mind is that the or operator can be used in combination with other regular expression components, such as character classes and quantifiers. For instance, the regular expression ([A-Z]|[0-9]){3} would match any three-character string that contains either an uppercase letter or a number.
+Overall, although not used in this case, OR operators in can be a powerful tool for specifing multiple alternative patterns for matches only the first one that applies.
 
 ### Character Classes
 
@@ -160,9 +165,23 @@ Overall, character classes are a useful tool for writing more concise regular ex
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-The regular expression above does not contain any flags, which are an optional feature of regular expressions that may be added to the end of a regular expression to modify how the pattern is matched. Commonly used flags include: `i`, `g`, and `m`. `i`: This flag offers case-insensitive matching capability. With this flag in place, the associated regular expression will match characters irrespective of their case (e.g., `/happy/i` would match each of the following: happy, Happy, HaPpy, happY). `g`: This flag is used for global matching of patterns, allowing the pattern to match all instances of the input pattern, rather than just the first instance. `m`: This flag allow for multi-line matching. Specifically,
+The regular expression above does not contain any flags, which are an optional feature of regular expressions that may be added to the end of a regular expression to modify how the pattern is matched. Commonly used flags include: `i`, `g`, and `m`. Flags are added by placing them after the final `/` as so: `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i`. To better understand how flags work, let us consider each of these in more detail.
 
-Flags are added by placing them after the final `/` as so: `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i`.
+- The `i` flag offers case-insensitive matching capability. With this flag in place, the associated regular expression will match characters irrespective of their case (e.g., `/happy/i` would match each of the following: happy, Happy, HaPpy, happY). 
+
+- The `g` flag is used for global matching of patterns, allowing the pattern to match all instances of the input pattern, rather than just the first instance. For example, If we had the following string: "The quick brown fox jumps over the lazy dog. The dog is not amused", and we want to find all occurrences of the word "the" (case-insensitive) in the string using the g flag, we can construct the regular expression `/the/gi`. Here, the pattern the matches the lowercase letters "the" exactly. The g flag at the end of the regular expression enables global matching, meaning it will match all occurrences of the pattern rather than just the first one. Finally, the i flag after the final delimiter / makes the match case-insensitive, meaning that it will match "the" regardless of whether it's uppercase or lowercase.
+
+- The `m` flag allow for multi-line matching by modifying how the ^ and $ anchors work. By default, these anchors match the beginning and end of an entire string. When m flag is used, however, not only do they continue to perform this function, but they also match the start and end of each *line* within the string. This can be useful when the input string has multiple lines. For instance, in the string:
+
+```
+Start reading your books, class.
+Start now or else you may be late.
+Start, stop, begin again.
+```
+
+/^start/m would match "start" at the beginning of each line. rather than just the initial start.
+
+Overall, flags are a useful tool for modifying the behavior of pattern matching within a regular expression to suit specific requirements by providing additional flexibility and control over how the regular expression engine interprets and applies a given pattern.
 
 ### Grouping and Capturing
 
@@ -243,4 +262,4 @@ This Gist was authored and published by Jared Green. I am a full-stack software 
 
 ## Additional Reading
 
-Those interested in reading more about regular expressions may be interested in exploring regular-expressions.info, a website dedicated to providing in-depth tutorials for a variety of regex concepts. The site may be accessed [here](https://www.regular-expressions.info/wordboundaries.html).
+Those interested in reading more about regular expressions may be interested in exploring regular-expressions.info, a website dedicated to providing in-depth tutorials for a variety of regex concepts. The site may be accessed [here](https://www.regular-expressions.info/wordboundaries.html). Please note that the exact behavior of certain regex characters may vary in different regex flavors and with different options or modes, so it's important to consult the documentation or reference guide specific to your regex implementation for precise details!
