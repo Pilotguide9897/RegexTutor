@@ -209,12 +209,32 @@ Overall, the choice between character classes and bracket expressions depends on
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Greedy and lazy matching are two distince approaches to matching patterns in regular expressions. The former
+In regular expressions, greedy and lazy matching refer to two different applications of quantifiers responsible for controlling how much text can be matched by particular patterns. For more information on quantifiers see the section on [quantifiers](#quantifiers). To put it simply, greedy matching matches as *much* text as possible while still allowing the overall pattern to match, whereas lazy matching, also referred to as non-greedy matching, matches as *little* text as possible while still allowing the overall pattern to match. Another way to consider the difference between greedy and lazy matching is that, as a greedy property owner may attempt to possess as much realestate as possible, greedy matching attempts to possess the maximum number of characters. Alternatively, as a lazy land owner may not be bothered to attempt to claim extra land, lazy matching only attempts to possess the minimum nuber of characters possible.  
 
-Greedy matching is used by default in regular expressions, meaning that it matches as much text as possible while still satisfying the pattern
-however,
 
-lazy matching is useful in certain situations where you may need to match text that contains nested patterns and where greedy matching would match too much text and result in unexpected matches (e.g., )
+    Greedy Matching
+Greedy matching is generally the default in regular expressions, meaning that they by their nature, regular expressions attempt to match as much text as possible while still satisfying the specified pattern. This makes sense, as since regular expressions are designed as tool that uses patterns to search, match, and manipulate text, it stands to reason that they would attempt to match as much text as possible by default. When applying greedy matching regular expressions takes advantage of the `*`, `+`, and `?` quantifiers to allow them to match text. To reiterate in the context of greedy and lazy matching: 
+- Asterisk (`*`) matches zero or more occurrences of the preceding element, matching as many occurrences as possible. This quantifier allows the preceding element to repeat any number of times, including zero. For example, the pattern /ab*/ will match "a", "ab", "abb", "abbb", and so on. 
+- Plus (`+`) matches one or more occurrences of the preceding element, matching as many occurrences as possible. This quantifier requires the preceding element to appear at least once, but it can repeat any number of times. For example, the pattern /ab+/ will match "ab", "abb", "abbb", and so on.
+- Question mark (`?`) matches zero or one occurrence of the preceding element, matching as many occurrences as possible. This quantifier allows the preceding element to appear either zero times or once. For example, the pattern /ab?/ will match "a" and "ab".
+
+In all cases, these quantifiers are greedy because they attempt to consume the maximum number of characters that still allow the overall pattern to match. If there are multiple occurrences of the preceding element, they will match as many occurrences as possible.
+
+    Lazy Matching
+
+Although the default for regular expressions is to generally attempt to match as much text as possible, there are certain situations where this may not be desirable, such as when using regular expressions for input validation, text extraction, or for performance optimization purposes when matching agains large quantities of text. Further, lazy matching is useful in certain situations where you may need to match text that contains nested patterns and where greedy matching would match too much text and result in unexpected matches. Overall, lazy matching is denoted by the additino of (`?`) after quantifiers. Consequently, each of the quantifiers outlined above may be converted from greedy matchers to lazy matchers by adding a (`?`) after them. The reason this happens is related to how regular expression engines process patterns. When a quantifier is encountered, the regex engine initially matches as much text as possible to satisfy the quantifier. However, with a (`?`) added after the quantifier, the engine now attempts to match as little text as possible while still allowing the overall pattern to match. This transformation allows for more precise control over matching behavior. Returning to the quantifiers discussed in the section on greedy matching, let us explore what would happen if one was to add (`?`) after them:
+- (`*?`): Matches zero or more occurrences of the preceding element, but as few occurrences as possible. It matches zero or more occurrences of the preceding element, attempting to match as little text as possible.
+It will stop matching as soon as the overall pattern was satisfied. For instance, given the pattern /a.*?b/ and the string "aabab", the match will be "aab" instead of the greedy match "aabab". The lazy quantifier stops at the first occurrence of "b".
+
+- (`+?`): Matches one or more occurrences of the preceding element, attempting to match as little text as possible. It stops matching as soon as the overall pattern has been satisfied. To see what I mean, consider this. Given the pattern `/ba+?/` and the string "baaaa", the match will be "ba" instead of the greedy match "baaaa". The lazy quantifier stops after matching "ba" but does not match the additional repeating "a" characters.
+
+- (`??`): Matches zero or one occurrence of the preceding element, attempting to match as little text as possible.
+Once again, it stops matching as soon as the overall pattern can still be satisfied.
+Example: Given the pattern `/\d+??/` and the string "123456", the match will be "1", as it matches as little as possible, rather than the greedy match "123456". The lazy quantifier matches only the "1" and does not proceed to match the additional digits.
+
+In our regular expression for matching URLs, greedy matching is used in two parts. First to match one or more alphanumeric characters, dots, or dashes using the pattern (`[\da-z\.-]+`). The second instance of greedy matching is to match zero or more characters that are either a forward slash, a word character (alphanumeric or underscore), a space, a dot, or a dash using the pattern (`([\/\w \.-]*)`). Our pattern does not employ any instances of lazy matching since it wants to be as inclusive as possible to allow it to detect any and all possible URL variations.
+
+Overall, it is important to remember that neither greedy or lazy matching is inherently superior, and to acknowledge that the choice between greedy and lazy matching depends on the specific requirements of one's pattern and the desired behavior when multiple matches are possible. In this regard it is important users consider the context and expected results when deciding whether to use greedy or lazy quantifiers in your regular expressions.
 
 ### Boundaries
 
@@ -232,7 +252,7 @@ As noted above, our regex for matching URLs takes advantage of the carat `^` and
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-As noted above, this regular expression does not use any back-references. Nonetheless, it may still be helpful to provide just a brief overview of what back-references are and how they work to understand _why_ they are not necessary in this particular expression.
+As noted above, this regular expression does not use any back-references. Regardless, it may still be helpful to provide just a brief overview of what back-references are and how they work to understand *why* they are not necessary in this particular expression.
 
 The use of back-references is a method of referring back to a previously matched group within the same regular expression pattern to allow for matching repeated patterns. Back-references take advantage of capturing groups (see [Grouping and Capturing](#grouping-and-capturing)) to easily refer to repeated patterns or to ensure that two parts of a pattern match the same text. Back-references are denoted by backslash followed by the number of the capturing group (e.g., `\2` refers to the second capturing group in the pattern). For this reason, back-references are commonly used for text validation, data extraction tasks, and in search and replace. Additionally, another common use of back-references is to check for the presence of repeated words when editing text, specifically using the regex `\b(\w+)\S+\1\b`. Since the regular expression above does not need to target repeated text, however, and urls do not typically include matching segments, back-references are not required when targeting our URLs.
 
@@ -258,7 +278,7 @@ For more information on lookarounds see [here](https://www.regular-expressions.i
 
 ## Author
 
-This Gist was authored and published by Jared Green. I am a full-stack software developer based in New Brunswick, Canada and I enjoy creating resources such as this gist that help solidify my own learning and may assist others in their own development journies! If you are interested in exploring my other projects please visit my [GitHub](https://github.com/Pilotguide9897).
+This Gist was authored and published by Jared Green. I am a full-stack software developer based in New Brunswick, Canada and I enjoy creating resources such as this gist that help solidify my own learning and assist others in their own web development journies! If you are interested in exploring my other projects please visit my [GitHub](https://github.com/Pilotguide9897).
 
 ## Additional Reading
 
