@@ -148,18 +148,19 @@ Overall, although not used in this case, OR operators in can be a powerful tool 
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Character classes, also referred to as *character sets* are a robus feature of regular expressions that specifies a set of characters which may be matched by any single character in the string being searched. To put it another way, character classes tell the regex engine to match all occurrences of only certain characters. Specifically, character classes are defined by enclosing characters within a set of square brackets `[]` and can be used to specify specific characters (e.g., `[abc]` would match any instance of a, b, or c), or to define a range of characters that encloses any characters in between (e.g., `[a-z] all instances of lowercase letters in a given string). Character classes are useful because they allow users to specify multiple characters in a condensed syntax, such that they do not need to write out [a,b,c,d,e,f,]
+Character classes, also referred to as *character sets* are a robust feature of regular expressions that specifies a set of characters which may be matched by any single character in the string being searched. To put it another way, character classes tell the regex engine to match all occurrences of only certain characters. Most regular expression engines provide a set of a few predefined character classes that are default to regular expressions, including:
 
-Another feature of regex related to character classes are negated character classes, which are created by placing a carat `^` after the open square bracket in a regular character class. Negated character classes result in the expression matching any character *not* included in the character class. Notably are also a select few predefined character classes that are default to regular expressions, including:
+- (`\d`): This class matches any digit character. Equivalent to `[0-9]`.
+- (`\D`): This class matches any non-digit character. Equivalent to `[^0-9]`.
+- (`\w`): This class matches any word character, which includes alphanumeric characters and underscores. Equivalent to `[a-zA-Z0-9_]`.
+- (`\W`): This class matches any non-word character. Equivalent to `[^a-zA-Z0-9_]`.
+- (`\s`): This class matches any whitespace character, including spaces, tabs, and line breaks. Equivalent to [ \t\n\r\f].
+- (`\S`): This class matches any non-whitespace character. Equivalent to `[^ \t\n\r\f]`.
+- (`.`): This class matches any and all characters with the exception of a new line.
 
-- `\d`: Matches any digit character. Equivalent to [0-9].
-- `\D`: Matches any non-digit character. Equivalent to [^0-9].
-- `\w`: Matches any word character, which includes alphanumeric characters and underscores. Equivalent to [a-zA-Z0-9_].
-- `\W`: Matches any non-word character. Equivalent to [^a-zA-Z0-9_].
-- `\s`: Matches any whitespace character, including spaces, tabs, and line breaks. Equivalent to [ \t\n\r\f].
-- `\S`: Matches any non-whitespace character. Equivalent to [^ \t\n\r\f].
+Overall, these character classes can be used within regular expressions, either alone or in combination, to represent specific sets of characters without explicitly listing them. For example, the regular expression (`\d+`) matches one or more digits, whereas (`\w+`) matches one or more alphanumeric characters or underscores.
 
-Overall, character classes are a useful tool for writing more concise regular expressions
+Our URL matching expression takes advantage of this property by employing the (`\w`) character class in the (`[\/\w \.-]`) bracket expression to target any alphaneumeric character.
 
 ### Flags
 
@@ -167,11 +168,11 @@ Overall, character classes are a useful tool for writing more concise regular ex
 
 The regular expression above does not contain any flags, which are an optional feature of regular expressions that may be added to the end of a regular expression to modify how the pattern is matched. Commonly used flags include: `i`, `g`, and `m`. Flags are added by placing them after the final `/` as so: `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i`. To better understand how flags work, let us consider each of these in more detail.
 
-- The `i` flag offers case-insensitive matching capability. With this flag in place, the associated regular expression will match characters irrespective of their case (e.g., `/happy/i` would match each of the following: happy, Happy, HaPpy, happY). 
+- The (`i`) flag offers case-insensitive matching capability. With this flag in place, the associated regular expression will match characters irrespective of their case (e.g., (`/happy/i`) would match each of the following: happy, Happy, HaPpy, happY). 
 
-- The `g` flag is used for global matching of patterns, allowing the pattern to match all instances of the input pattern, rather than just the first instance. For example, If we had the following string: "The quick brown fox jumps over the lazy dog. The dog is not amused", and we want to find all occurrences of the word "the" (case-insensitive) in the string using the g flag, we can construct the regular expression `/the/gi`. Here, the pattern the matches the lowercase letters "the" exactly. The g flag at the end of the regular expression enables global matching, meaning it will match all occurrences of the pattern rather than just the first one. Finally, the i flag after the final delimiter / makes the match case-insensitive, meaning that it will match "the" regardless of whether it's uppercase or lowercase.
+- The (`g`) flag is used for global matching of patterns, allowing the pattern to match all instances of the input pattern, rather than just the first instance. For example, If we had the following string: "The quick brown fox jumps over the lazy dog. The dog is not amused", and we want to find all occurrences of the word "the" (case-insensitive) in the string using the g flag, we can construct the regular expression (`/the/gi`). Here, the pattern the matches the lowercase letters "the" exactly. The g flag at the end of the regular expression enables global matching, meaning it will match all occurrences of the pattern rather than just the first one. Finally, the i flag after the final delimiter / makes the match case-insensitive, meaning that it will match "the" regardless of whether it's uppercase or lowercase.
 
-- The `m` flag allow for multi-line matching by modifying how the ^ and $ anchors work. By default, these anchors match the beginning and end of an entire string. When m flag is used, however, not only do they continue to perform this function, but they also match the start and end of each *line* within the string. This can be useful when the input string has multiple lines. For instance, in the string:
+- The (`m`) flag allow for multi-line matching by modifying how the ^ and $ anchors work. By default, these anchors match the beginning and end of an entire string. When m flag is used, however, not only do they continue to perform this function, but they also match the start and end of each *line* within the string. This can be useful when the input string has multiple lines. For instance, in the string:
 
 ```
 Start reading your books, class.
@@ -179,7 +180,7 @@ Start now or else you may be late.
 Start, stop, begin again.
 ```
 
-/^start/m would match "start" at the beginning of each line. rather than just the initial start.
+(`/^start/m`) would match "start" at the beginning of each line. rather than just the initial start.
 
 Overall, flags are a useful tool for modifying the behavior of pattern matching within a regular expression to suit specific requirements by providing additional flexibility and control over how the regular expression engine interprets and applies a given pattern.
 
@@ -187,11 +188,11 @@ Overall, flags are a useful tool for modifying the behavior of pattern matching 
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Grouping and capturing in regular expressions is used to match and extract parts of a pattern. By containing a piece of a regular expression within parentheses (e.g., `/(inbrackets)/`), parts of a regular expression may be grouped together for the purpose of applying quantifiers or other modifications to the entire set. For example, the current regular expression includes three instances of grouping:
+Grouping and capturing in regular expressions is used to match and extract parts of a pattern. By containing a piece of a regular expression within parentheses (e.g., (`/(inbrackets)/`)), parts of a regular expression may be grouped together for the purpose of applying quantifiers or other modifications to the entire set. For example, the current regular expression includes three instances of grouping:
 
-1. `(https?:\/\/)`: This first instance of grouping is to allow the `?` quantifier to be applied to the entire group of characters collectively.
-2. `([\da-z\.-]+)`: This instance of grouping is to allow the `+` quantifier to be applied to the entire group.
-3. `([\/\w \.-]*)`: This instance of grouping is to allow the `*` quantifier to be applied to the entire group.
+1. `(https?:\/\/)`: This first instance of grouping is to allow the (`?`) quantifier to be applied to the entire group of characters collectively.
+2. `([\da-z\.-]+)`: This instance of grouping is to allow the (`+`) quantifier to be applied to the entire group.
+3. `([\/\w \.-]*)`: This instance of grouping is to allow the (`*`) quantifier to be applied to the entire group.
 
 Please note that only parentheses may be used for grouping characters, as curly brackets are used for quantifying and square brackets are reserved for declaring character classes.
 
@@ -199,18 +200,23 @@ Please note that only parentheses may be used for grouping characters, as curly 
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
-Like character classes, bracket expressions are used to define a set of characters that match a pattern. Unlike character classes, however, bracket expressions features slightly different syntax, notation, and use cases. Whereas character classes are defined using square brackets `[]`, 
+Like character classes, bracket expressions are used to define a set of characters that match a pattern. Unlike character classes, however, bracket expressions features slightly different syntax, notation, and use cases. Whereas character classes provide prederined categories of characters using escape sequences, bracket expressions allow users to define custom character sets or ranges defined within square brackets. Specifically, character classes are defined by enclosing characters within a set of square brackets `[]` and can be used to specify specific characters (e.g., `[abc]` would match any instance of a, b, or c), or to define a range of characters that encloses any characters in between (e.g., `[a-z]` all instances of lowercase letters in a given string). Character classes are useful because they allow users to specify multiple characters in a condensed syntax, such that they do not need to write out [a,b,c,d,e,f...z]. 
 
-Generally speaning, when attempting to match a set of characters that follow a specific pattern or order, bracket expressions may be a better choice, as they provide a greater degree of flexibility
+Another important feature of regex related to bracket expressions are negated bracket expressions, which are created by placing a carat (`^`) after the open square bracket. Negated bracket expressions result in the expression matching any character *not* included in the character class. For instance, the regular expression [^a-z] matches any character that is *not* a lowercase letter. To put it another way, excludes the range of characters from 'a' to 'z'. Thus, if we had the string "Hello123!". Applying the regular expression [^a-z] to this string would match the '1', '2', '3', and '!'.The lowercase letters 'H', 'e', 'l', 'l', and 'o', however, would not be matched because they fall within the negated range.
 
-Overall, the choice between character classes and bracket expressions depends on the specific requirements of your pattern, and often a combination of both may prove the best solution.
+Our regular expression for detecting URLs uses bracket expressions to great effect for concisely matching a great variety of characters. Specifically, it takes advantage of three classes:  1) (`[\da-z\.-]`), 2) (`[a-z\.]`), and 3) (`[\/\w \.-]`). 
+
+Why don't we break these bracket expressions down in more detail? First up is, (`[\da-z\.-]`). This bracket expression uses (`\d`) to match any digit from 0 to 9. Additionally, its use of `a-z` allows it to match any lowercase letter. Finally, `\. -` escapes and matches a dot (`.`), a hyphen (`-`), and a blank space. Together, these smaller portions allow this expression to match any alphanumeric characters, dots, hyphens, and spaces that might be used in a URL. Moving on, next up we have (`[a-z\.]`). In this bracket expression, like before,`a-z` allows matching of any lowercase letter and `\.` escapes and matches the literal dot character. Together, these patterns allow this expression to match lowercase letters and dots for matching top-level domain names (e.g., .com, .edu). Last but not least we have (`[\/\w \.-]`). This bracket expression first uses `\/` to escape and match literal forward slashes (`/`). Next, it uses the predefined `\w` character class (note how character classes and bracket expressions can be used synergystically) to match any word character. Then it leaves a blank space to match any empty spaces, before finally using (`\. -`) in a fashion similar to bracket expression 1 to  match a dot (`.`), a hyphen (`-`), and a blank space. Overall, this bracket expression allows matching of forward slashes, word characters, spaces, dots, and hyphens to target the wide variety of additional URL query parameters. 
+     
+Hopefully, with this example now in place you can see how overall, character classes are a highly useful tool for writing more concise and powerful regular expressions.
+
+Generally speaning, when attempting to match a set of characters that follow a specific pattern or order, bracket expressions may be a better choice, as they provide a greater degree of flexibility, though overall, the choice between character classes and bracket expressions depends on the specific requirements of your pattern, and often a combination of both may provide the best solution.
 
 ### Greedy and Lazy Match
 
 `/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/`
 
 In regular expressions, greedy and lazy matching refer to two different applications of quantifiers responsible for controlling how much text can be matched by particular patterns. For more information on quantifiers see the section on [quantifiers](#quantifiers). To put it simply, greedy matching matches as *much* text as possible while still allowing the overall pattern to match, whereas lazy matching, also referred to as non-greedy matching, matches as *little* text as possible while still allowing the overall pattern to match. Another way to consider the difference between greedy and lazy matching is that, as a greedy property owner may attempt to possess as much realestate as possible, greedy matching attempts to possess the maximum number of characters. Alternatively, as a lazy land owner may not be bothered to attempt to claim extra land, lazy matching only attempts to possess the minimum nuber of characters possible.  
-
 
     Greedy Matching
 Greedy matching is generally the default in regular expressions, meaning that they by their nature, regular expressions attempt to match as much text as possible while still satisfying the specified pattern. This makes sense, as since regular expressions are designed as tool that uses patterns to search, match, and manipulate text, it stands to reason that they would attempt to match as much text as possible by default. When applying greedy matching regular expressions takes advantage of the `*`, `+`, and `?` quantifiers to allow them to match text. To reiterate in the context of greedy and lazy matching: 
